@@ -1,11 +1,16 @@
 from tkinter import *
+from tkinter import ttk
+from time import *
 
-kaart = """
+algne_skoor = 0
+skoor = 0
+
+kaart1 = """
 ##################################################
 #     #  $#      #       ##    #   #$            #
-#     #   # #### ##### #    ## ### ######## #### #
-#  ZZ   ###    # #   # ######         #   # # #  #
-#              #   #     # ########## # # # # #  #
+# T   #   # #### ##### #    ## ### ######## #### #
+#   $$  ###    # #   # ######         #   # # #  #
+#  E           #   #     # ########## # # # # #  #
 ### ## ######  ######### # #   #       $#   #    #
 #    # #               # # # # # ############### #
 #### # ######### ##### #     # #         #       #
@@ -42,13 +47,80 @@ kaart = """
 # ##$#     #  #   #   #   #      #  #   # #    # #
 ################################################E#
 """
+kaart2 = """
+##################################################
+#T  # #  $#      #$      ##    #                 #
+# #   #   # #### #######    ## ### ######## ######
+#####   ###    # #   # ######         #   # #$   #
+#              #   #     # ########## # # # ###  #
+### ## ################# # #   #        #        #
+#    # #               # # # # # ######### #######
+#### # ##### ### ##### #     # #         #      $#
+#    #         #    $# ####### # ### ### # #######
+###  ####### ######### #     #     # #   #       #
+#      #               # ######### # # ### #  #  #
+###### # ###############   #     # ### # # ##### #
+#   #  # #      #     #  # # ### #         #     #
+#   #  # #### # ##### # ## # #   ######### # ### #
+#  $#  #    # # #     #  #   #       #     # #$  #
+#  ## ##### # # # # ###  ########### # ######### #
+#  #        # # # # #                #     #     #
+#  #######  ### ### ### ############## ##### #####
+#                 #  #  #     #   #        # #   #
+### ### ############ # ## ### # ###  #####     # #
+#   #         #   #  #    #   #      #     ##### #
+# ########### # # # ## #### ### #### #######     #
+# #   #     # #           #     #$   #       #####
+#   #   #         ## #### ############ ##### #   #
+########## ########  #    # #  #         # # #   #
+#$$  #              ####### #  #  ######## #     #
+#### # ###############         #  #   # ## ##### #
+#$   # #    # #   #    #  # #     #   #          #
+## ### # ## #   #   # ##### ##### ### ############
+#  # #####  ######### #      #                   #
+## #   # #     #      #$#  # ##### ###  #####    #
+#  # # # ##### # #### ###### #   #   #      #### #
+## # #         # # #  #    # # # # # ###### #    #
+#    #########   #    # # ## # #     #    # #    #
+# ####   #   ##### #### # #  # ##### #  # #####  #
+# #    # ###     #      # # ## # #   #  #   #    #
+# ## ### #   ################### #  ### ### #### #
+#    #   # #    #   #   #   #    #    # #   # $# #
+# ##$#     #  #   # # #   #      #  #   # #    # #
+#!################################################
+"""
 
+maailmad = [kaart1,kaart2]
+
+def titleScreen(tahvel):
+    silt = Label(raam, text="Mängu nimi")
+    silt.place(x=200, y=10)
+
+
+    nupp = Button(raam, text="New game")
+    nupp.place(x=160, y=40, width=150)
+
+    nupp2 = Button(raam, text="High score")
+    nupp2.place(x= 160, y = 70,width= 150)
 
 
 raam = Tk()
 raam.title("Mäng")
-tahvel = Canvas(raam, width=500, height=500, background="white")
-tahvel.grid()
+
+tahvel = Canvas(raam, width=500, height=400, background="white")
+tahvel.pack()
+
+
+tahvel2 = Canvas(raam, width=500, height= 100, background="lightgray")
+tahvel2.pack()
+
+
+def eemaldaKõik():
+    tahvel.delete(ALL)
+
+def mängLäbi():
+    eemaldaKõik()
+
 
 class Maailm:
     maailm = [] #Tühi maailm
@@ -72,17 +144,25 @@ class Maailm:
             rida = read[rea_nr]
             for veeru_nr in range(len(rida)):
                 if rida[veeru_nr] == "T":
-                    Tegelane(veeru_nr,rea_nr,10,"Juks").looAknasse()
+                    Õhk(veeru_nr,rea_nr).looAknasse()
+                    teg = Tegelane.tegelase_ID = Tegelane(veeru_nr,rea_nr,10,"Juks").looAknasse()
                 elif rida[veeru_nr] == " ":
                     Õhk(veeru_nr,rea_nr).looAknasse()
+                    Udu(veeru_nr,rea_nr).looAknasse()
                 elif rida[veeru_nr] == "#":
                     Sein(veeru_nr,rea_nr).looAknasse()
+                    Udu(veeru_nr,rea_nr).looAknasse()
                 elif rida[veeru_nr] == "Z":
                     ElektriAed(veeru_nr,rea_nr).looAknasse()
+                    Udu(veeru_nr,rea_nr).looAknasse()
                 elif rida[veeru_nr] == "E":
                     Väljapääs(veeru_nr,rea_nr).looAknasse()
+                    Udu(veeru_nr,rea_nr).looAknasse()
                 elif rida[veeru_nr] == "$":
+                    Õhk(veeru_nr,rea_nr).looAknasse()
                     Münt(veeru_nr,rea_nr).looAknasse()
+                    Udu(veeru_nr,rea_nr).looAknasse()
+
     def muudaObjekti(self,veeru_nr,rea_nr,objekt):
         self.maailm[veeru_nr][rea_nr] == objekt
         return objekt
@@ -95,10 +175,8 @@ class Maailm:
 
 class Objekt(Maailm):
     objektideLoendur = 0
-    x = 0
-    y = 0
     def __init__(self,x,y):
-        self.x = x * 10 + 5
+        self.x = x * 10 + 5  #Teisendab listi koordinaadid tahvli omadesse
         self.y = y * 10 + 5
         Objekt.objektideLoendur += 1
         self.objektiID = Objekt.objektideLoendur
@@ -107,30 +185,24 @@ class Objekt(Maailm):
     def tagastaSümbol(self):
         return self.märk
 
+    def koordinaadid(self):
+        return [self.x,self.y]
+
     def id(self):
         return self.objektiID
 
     def kuvaKogus(self):
         print("Objekte kokku" , Objekt.objektideLoendur)
 
-    def koordinaadid(self):
-        print("X:",self.x,"Y:",self.y)
-
-    def xcord(self):
-        return self.x
-
-    def ycord(self):
-        return self.y
-
     def eemalda(self):
         self.maailm[self.x][self.y] = " "
 
     def looAknasse(self):
-        tahvel.create_image(self.x,self.y,image=self.pilt,tag=self.tag, anchor="center")
+        return tahvel.create_image(self.x,self.y,image=self.pilt,tag=self.tag, anchor="center")
 
 class Õhk(Objekt):
     nimi = "õhk"
-    tag = "läbitav"
+    tag = ("läbitav", "tühjus")
     märk = " "
     pilt = PhotoImage(file="õhk.gif")
 
@@ -148,71 +220,127 @@ class ElektriAed(Objekt):
 
 class Väljapääs(Objekt):
     nimi = "väljapääs"
-    tag = "lõpp"
+    tag = ("lõpp", "läbitav")
     märk = "E"
     pilt = PhotoImage(file="lõpp.gif")
 
 class Münt(Objekt):
     nimi = "münt"
-    tag = ("läbitav", "kogutav")
+    tag = ("läbitav", "korjatav")
     märk = "$"
     pilt = PhotoImage(file="mynt.gif")
 
+class Udu(Objekt):
+    nimi = "udu"
+    tag = ("läbitav", "hajuv")
+    märk = "%"
+    pilt = PhotoImage(file="udu.gif")
+
 class Olend(Objekt):
+    olendid = 0
     def __init__(self,x,y,elud,nimi):
         Objekt.__init__(self,x,y)
+        self.olendid += 1
         self.elud = elud
         self.nimi = nimi
         self.olendiID = Objekt.objektideLoendur
         Objekt.objektideLoendur += 1
 
+    #Leiab objektide ID-d mingite kindlate koordinaatide järgi.
     def leiaID(self,x,y): #Enne oli ilma x ja y-ita
-        #tahvel.create_rectangle(self.x-5,self.y-5,self.x+5,self.y+5)
-        return tahvel.find_closest(x,y)
+        return tahvel.find_overlapping(x,y,x,y)
+        #return tahvel.find_closest(x,y)
 
     def olendeidKokku(self):
-        return Objekt.objektideLoendur
+        return Olend.olendid
 
     def id(self):
         return self.olendiID
 
-    def tuvastaTakistus(self,x,y):
-        print(str(self.leiaID(x,y)))
-        if tahvel.find_withtag("takistus").__contains__(self.leiaID(x,y)[0]):
-            if tahvel.find_withtag("surmav").__contains__(self.leiaID(x,y)[0]):
+
+    def kaotaUdu(self,x,y,suund):
+        uusX = x
+        uusY = y
+        if suund == "E":
+            uusX = x+10
+        elif suund == "W":
+            uusX = x-10
+        elif suund == "N":
+            uusY = y-10
+        elif suund == "S":
+            uusY = y+10
+
+        for element in self.leiaID(x,y):
+            print(element)
+            if tahvel.find_withtag("takistus").__contains__(element):
+                if tahvel.find_withtag("hajuv").__contains__(self.leiaID(x,y)[-1]):
+                    tahvel.delete(self.leiaID(x,y)[-1])
+                return
+            else:
+                if tahvel.find_withtag("tühjus").__contains__(element):
+                    if tahvel.find_withtag("hajuv").__contains__(self.leiaID(x,y)[-1]):
+                        tahvel.delete(self.leiaID(x,y)[-1])
+                    self.kaotaUdu(uusX,uusY,suund)
+                if tahvel.find_withtag("hajuv").__contains__(element):
+                    tahvel.delete(element)
+                    self.kaotaUdu(uusX,uusY,suund)
+
+    def tuvastaTakistus(self,x,y,suund):
+        print("Ees on objekt(id) ID-ga: ", self.leiaID(x,y))
+        if tahvel.find_withtag("hajuv").__contains__(self.leiaID(x,y)[-1]) or tahvel.find_withtag("tühjus").__contains__(self.leiaID(x,y)[-1]):
+            self.kaotaUdu(x,y,suund)
+            #tahvel.delete(self.leiaID(x,y)[-1])
+        if tahvel.find_withtag("takistus").__contains__(self.leiaID(x,y)[-1]):
+            if tahvel.find_withtag("surmav").__contains__(self.leiaID(x,y)[-1]):
                 print("Said elektrit, kaotasid",2, "elupunkti")
                 self.elud -= 2
                 if self.elud <= 0:
                     self.sure()
-                    print("Said surma")
+                    print(self.nimi, "sai surma")
                 else:
                     print("Elusid alles", self.elud)
             return True
+        elif tahvel.find_withtag("lõpp").__contains__(self.leiaID(x,y)[-1]):
+            print("Läbisid taseme!")
+            alustaMängu(kaart2)
+            return True
+        elif tahvel.find_withtag("korjatav").__contains__(self.leiaID(x,y)[-1]):
+            print("Leidsid mündi!")
+            lisaSkoori()
+            i = self.leiaID(x,y)
+            for element in i:
+                if tahvel.find_withtag("korjatav").__contains__(element):
+                    tahvel.delete(element)
         else:
             return False
 
     def liiguVasakule(self,event):
         if self.elus:
-            if not self.tuvastaTakistus(self.x-10,self.y):
-                tahvel.move(self.leiaID(self.x,self.y),-10,0) #Tegelase ID 2001
+            if not self.tuvastaTakistus(self.x-10,self.y,"W"):
+                tahvel.move(Tegelane.tegelase_ID,-10,0) #Tegelase ID 2001
+                tahvel.lift(Tegelane.tegelase_ID)
                 self.x -= 10
-
     def liiguParemale(self,event):
         if self.elus:
-            if not self.tuvastaTakistus(self.x+10,self.y) and self.elus:
-                tahvel.move(self.leiaID(self.x,self.y),10,0)
+            if not self.tuvastaTakistus(self.x+10,self.y,"E"):
+                tahvel.move(Tegelane.tegelase_ID,10,0)
+                tahvel.lift(Tegelane.tegelase_ID)
                 self.x += 10
-
     def liiguÜlesse(self,event):
         if self.elus:
-            if not self.tuvastaTakistus(self.x,self.y-10) and self.elus:
-                tahvel.move(self.leiaID(self.x,self.y),0,-10)
+            objekt = self.tuvastaTakistus(self.x,self.y-10,"N") #Kontrollib kas objekt on takistus
+            if not objekt:
+                tahvel.move(Tegelane.tegelase_ID,0,-10)
+                tahvel.lift(Tegelane.tegelase_ID)
                 self.y -= 10
+                #self.valiObjekt()
+                #self.eemaldaValitudObjektid()
 
     def liiguAlla(self,event):
         if self.elus:
-            if not self.tuvastaTakistus(self.x,self.y+10) and self.elus:
-                tahvel.move(self.leiaID(self.x,self.y),0,10)
+            if not self.tuvastaTakistus(self.x,self.y+10,"S"):
+                tahvel.move(Tegelane.tegelase_ID,0,10)
+                tahvel.lift(Tegelane.tegelase_ID)
                 self.y += 10
 
 class Tegelane(Olend):
@@ -221,9 +349,22 @@ class Tegelane(Olend):
     nimi = "Juks"
     märk = "T"
     pilt = PhotoImage(file="Tegelane.gif")
+    tegelase_ID = None
+
+    def __init__(self,x,y,elud,nimi):
+        Olend.__init__(self,x,y,elud,nimi)
+        raam.bind_all("<Up>",    self.liiguÜlesse)
+        raam.bind_all("<Down>",  self.liiguAlla)
+        raam.bind_all("<Left>",  self.liiguVasakule)
+        raam.bind_all("<Right>", self.liiguParemale)
+        raam.bind_all("<a>", self.räägi)
+
 
     def sure(self):
         self.elus = False
+
+    def id(self):
+        print(self.tegelase_ID)
 
     def määraNimi(self,nimi):
         self.nimi = nimi
@@ -235,29 +376,32 @@ class Tegelane(Olend):
         Tegelane.elus = False
 
     def räägi(self, event):
-        if self.elus == True:
-            print(Tegelane.tagastaNimi(self)+": Ma oskan rääkida!")
+        if self.elus:
+            print(self.nimi+":", input("Sisesta tekst:"))
         else:
-            print("'Tegelane on surnud'")
+            print(self.nimi+"i vaim:", input("Sisesta tekst:"))
 
-maailm = Maailm(500,500,kaart,tahvel)
-maailm.looMaailmMõõtmetega()
-maailm.loeKaartSisse()
+def nulliKõik():
+    global skoor
+    skoor = 0
+
+def alustaMängu(kaart = kaart1):
+    if kaart == kaart1:
+        nulliKõik()
+    eemaldaKõik()
+    maailm = Maailm(500,500,kaart,tahvel)
+    maailm.looMaailmMõõtmetega()
+    maailm.loeKaartSisse()
+
+def lisaSkoori():
+    global skoor
+    skoor += 100
+    print(skoor)
+
+Button(tahvel2, text="Uus mäng", command=alustaMängu).place(x=320, y=70)
+Button(tahvel2, text="Lõpeta mäng", command=mängLäbi).place(x=400, y=70)
 
 
-print(maailm.leiaObjekt(1,1))
-
-
-
-teg = maailm.muudaObjekti(1,1,Tegelane(1,1,10,"Juks"))
-teg.looAknasse()
-#teg = maailm.leiaObjekt(1,1)
-#teg = Tegelane(1,1,10,"Juks")
-
-raam.bind_all("<Up>",    teg.liiguÜlesse)
-raam.bind_all("<Down>",  teg.liiguAlla)
-raam.bind_all("<Left>",  teg.liiguVasakule)
-raam.bind_all("<Right>", teg.liiguParemale)
-raam.bind_all("<Enter>", teg.räägi)
 
 raam.mainloop()
+
