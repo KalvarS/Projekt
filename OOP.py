@@ -1,11 +1,13 @@
 from tkinter import *
+from tkinter import font
 from time import *
+
 
 kaart = """
 ##################################################
 #     Z  $#      #       ##    #   #$            #
 # T   Z   # #### ##### #    ## ### ######## #### #
-#       ###    # #   # ######         #   # # #  #
+#  E    ###    # #   # ######         #   # # #  #
 #              #   #     # ########## # # # # #  #
 ### ## ######  ######### # #   #       $#   #    #
 #    # #               # # # # # ############### #
@@ -48,7 +50,7 @@ kaart2 = """
 #   # #  $#      #$      ##    #                T#
 # #   #   # #### #######    ## ### ######## ######
 #####   ###    # #   # ######         #   # #$   #
-#              #   #     # ########## # # # ###  #
+#              #   #     # ########## # #F# ###  #
 ### ## ################# # #   #        #        #
 #    # #               # # # # # ######### #######
 #### # ##### ### ##### #     # #         #      $#
@@ -82,8 +84,8 @@ kaart2 = """
 # #    # ###     #      # # ## # #   #  #   #    #
 # ## ### #   ################### #  ### ### #### #
 #    #   # #    #   #   #   #    #    # #   # $# #
-# ##$#     #  #   # # #   #      #  #   # #    # #
-#!################################################
+#F##$#     #  #   # # #   #      #  #   # #    # #
+##################################################
 """
 
 
@@ -137,11 +139,14 @@ class Maailm:
                     Udu(veeru_nr,rea_nr).looAknasse()
                 elif rida[veeru_nr] == "E":
                     Väljapääs(veeru_nr,rea_nr).looAknasse()
-                    Udu(veeru_nr,rea_nr).looAknasse()
+#                    Udu(veeru_nr,rea_nr).looAknasse()
                 elif rida[veeru_nr] == "$":
                     Õhk(veeru_nr,rea_nr).looAknasse()
                     Münt(veeru_nr,rea_nr).looAknasse()
                     Udu(veeru_nr,rea_nr).looAknasse()
+                elif rida[veeru_nr] == "F":
+                    Finish(veeru_nr,rea_nr).looAknasse()
+
                 #elif rida[veeru_nr] == "T":
                 #    teg = maailm.muudaObjekti(1,1,Tegelane(1,1,10,"Juks"))
                 #    teg.looAknasse()
@@ -219,6 +224,12 @@ class Udu(Objekt):
     märk = "%"
     pilt = PhotoImage(file="udu.gif")
 
+class Finish(Objekt):
+    nimi = "finish"
+    tag = "finish"
+    märk = "F"
+    pilt = PhotoImage(file="finish.gif")
+
 class Olend(Objekt):
     olendid = 0
     def __init__(self,x,y,elud,nimi):
@@ -282,12 +293,17 @@ class Olend(Objekt):
             maailm = Maailm(500,500,kaart2,tahvel)
             maailm.looMaailmMõõtmetega()
             maailm.loeKaartSisse()
+            return True
         elif tahvel.find_withtag("korjatav").__contains__(self.leiaID(x,y)[-1]):
             print("Leidsid mündi!")
             i = self.leiaID(x,y)
             for element in i:
                 if tahvel.find_withtag("korjatav").__contains__(element):
                     tahvel.delete(element)
+        elif tahvel.find_withtag("finish").__contains__(self.leiaID(x,y)[-1]):
+            self.sure()
+            lõpp()
+
         else:
             return False
 
@@ -357,6 +373,20 @@ class Tegelane(Olend):
             print(self.nimi+":", input("Sisesta tekst:"))
         else:
             print(self.nimi+"i vaim:", input("Sisesta tekst:"))
+
+def lõpp():
+    raam = Tk()
+    raam.title("Tahvel")
+    tahvel = Canvas(raam, width=500, height=500, background="white")
+    tahvel.grid()
+
+    suur_font = font.Font(family='Verdana', size=32, weight='bold')
+    tahvel.create_text(200, 100, text="GAME OVER", font=suur_font, anchor=NW)
+
+    skoori_font = font.Font(family="Verdana", size=18, weight="bold")
+    tahvel.create_text(200, 200, text="Skoor:", font=skoori_font, anchor=NW)
+
+    raam.mainloop()
 
 maailm = Maailm(500,500,kaart,tahvel)
 maailm.looMaailmMõõtmetega()
