@@ -2,15 +2,16 @@ from tkinter import *
 from tkinter import ttk
 from time import *
 
-algne_skoor = 0
-skoor = 0
+raha = 0
+
+
 
 kaart1 = """
 ##################################################
 #     #  $#      #       ##    #   #$            #
 # T   #   # #### ##### #    ## ### ######## #### #
 #   $$  ###    # #   # ######         #   # # #  #
-#  E           #   #     # ########## # # # # #  #
+#              #   #     # ########## # # # # #  #
 ### ## ######  ######### # #   #       $#   #    #
 #    # #               # # # # # ############### #
 #### # ######### ##### #     # #         #       #
@@ -87,22 +88,8 @@ kaart2 = """
 # ## ### #   ################### #  ### ### #### #
 #    #   # #    #   #   #   #    #    # #   # $# #
 # ##$#     #  #   # # #   #      #  #   # #    # #
-#!################################################
+#E################################################
 """
-
-maailmad = [kaart1,kaart2]
-
-def titleScreen(tahvel):
-    silt = Label(raam, text="Mängu nimi")
-    silt.place(x=200, y=10)
-
-
-    nupp = Button(raam, text="New game")
-    nupp.place(x=160, y=40, width=150)
-
-    nupp2 = Button(raam, text="High score")
-    nupp2.place(x= 160, y = 70,width= 150)
-
 
 raam = Tk()
 raam.title("Mäng")
@@ -117,18 +104,24 @@ tahvel2.pack()
 
 def eemaldaKõik():
     tahvel.delete(ALL)
+    kuvaRaha()
 
 def mängLäbi():
     eemaldaKõik()
-
+    tahvel.create_image(250,200,image=mängläbi,anchor="center")
+    raam.update()
+    sleep(5)
+    raam.destroy()
 
 class Maailm:
     maailm = [] #Tühi maailm
+    kaart = ""
     def __init__(self,laius,pikkus,kaart,tahvel):
         self.kaart = kaart
         self.laius = laius
         self.pikkus = pikkus
         self.tahvel = tahvel
+        Maailm.kaart = kaart
 
 
 #Loob tühja maailma(kahemõõtmelise listi) antud mõõtmetega.
@@ -302,11 +295,18 @@ class Olend(Objekt):
             return True
         elif tahvel.find_withtag("lõpp").__contains__(self.leiaID(x,y)[-1]):
             print("Läbisid taseme!")
+            if Maailm.kaart == kaart2:
+                tahvel.create_image(250,210,image=lõpupilt,anchor="center")
+                tahvel.create_text(220,100,text="Sa said kokku " + str(raha)+ " senti!", font=20)
+                raam.update()
+                sleep(5)
+                raam.destroy()
+                return True
             alustaMängu(kaart2)
             return True
         elif tahvel.find_withtag("korjatav").__contains__(self.leiaID(x,y)[-1]):
             print("Leidsid mündi!")
-            lisaSkoori()
+            lisaRaha()
             i = self.leiaID(x,y)
             for element in i:
                 if tahvel.find_withtag("korjatav").__contains__(element):
@@ -382,8 +382,8 @@ class Tegelane(Olend):
             print(self.nimi+"i vaim:", input("Sisesta tekst:"))
 
 def nulliKõik():
-    global skoor
-    skoor = 0
+    global raha
+    raha = 0
 
 def alustaMängu(kaart = kaart1):
     if kaart == kaart1:
@@ -393,15 +393,27 @@ def alustaMängu(kaart = kaart1):
     maailm.looMaailmMõõtmetega()
     maailm.loeKaartSisse()
 
-def lisaSkoori():
+def lisaRaha():
+    global raha
+    raha += 1
+    kuvaRaha()
+
+def kuvaRaha():
     global skoor
-    skoor += 100
-    print(skoor)
+    tahvel2.delete(skoor)
+    if raha > 1 or raha == 0:
+        skoor = tahvel2.create_text(50,50,text="Raha: "+ str(raha)+" senti")
+    else:
+        skoor = tahvel2.create_text(50,50,text="Raha: "+ str(raha)+" sent")
 
 Button(tahvel2, text="Uus mäng", command=alustaMängu).place(x=320, y=70)
-Button(tahvel2, text="Lõpeta mäng", command=mängLäbi).place(x=400, y=70)
+Button(tahvel2, text="Lahku mängust", command=mängLäbi).place(x=400, y=70)
 
+lõpupilt = PhotoImage(file="lõpupilt.gif")
+mängläbi = PhotoImage(file="mängläbi.gif")
+algus = PhotoImage(file="title.gif")
+tahvel.create_image(250,200,image=algus,anchor="center")
 
+skoor = tahvel2.create_text(50,50,text="")
 
 raam.mainloop()
-
